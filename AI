@@ -44,30 +44,20 @@ echo "Setup done. Try: ai \"hello\""
 
 
 
+
+
+
 step 5
-
-git init
-git add ai.py setup.sh
-git commit -m "AI terminal tool using Ollama"
-git branch -M main
-git remote add origin https://github.com/lingesh7-lx/ai-terminal-tool.git
-git push -u origin main
-
-
-
-
-
-step 1
 
 git clone https://github.com/lingesh7-lx/ai-terminal-tool.git
 cd ai-terminal-tool
 
-step 2
+step 6
 
 chmod +x setup.sh
 ./setup.sh
 
-step 3
+step 7
 
 ai "what does chmod 755 mean"
 
