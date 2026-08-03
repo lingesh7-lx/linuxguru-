@@ -1,0 +1,291 @@
+-- Step 1: Create Table t1
+CREATE TABLE t1 (
+    id INT PRIMARY KEY,
+    pattern VARCHAR(50) NOT NULL
+);
+
+-- Step 2: Create Table t2
+CREATE TABLE t2 (
+    id VARCHAR(50) PRIMARY KEY,
+    pattern VARCHAR(50) NOT NULL
+);
+
+-- Step 3: Insert into t1
+INSERT INTO t1 (id, pattern)
+VALUES
+(1, 'divot'),
+(2, 'brick'),
+(3, 'grid');
+
+-- Step 4: Insert into t2
+INSERT INTO t2 (id, pattern)
+VALUES
+('a', 'brick'),
+('b', 'grid'),
+('c', 'diamond');
+
+-- Step 5: Cross Join
+SELECT t1.id, t2.id
+FROM t1 CROSS JOIN t2;
+
+-- Step 6: Inner Join
+SELECT t1.id, t2.id
+FROM t1
+INNER JOIN t2
+ON t1.pattern = t2.pattern;
+
+-- Step 7: Left Join
+SELECT t1.id, t2.id
+FROM t1
+LEFT JOIN t2
+ON t1.pattern = t2.pattern
+ORDER BY t1.id;
+
+-- Step 8: Right Join
+SELECT t1.id, t2.id
+FROM t1
+RIGHT JOIN t2
+ON t1.pattern = t2.pattern
+ORDER BY t2.id;
+
+
+
+
+33333
+
+-- Step 1: Create sempls Table
+CREATE TABLE sempls (
+    eno INTEGER PRIMARY KEY,
+    ename VARCHAR(20),
+    edob VARCHAR(15),
+    gender VARCHAR(10),
+    doj VARCHAR(15),
+    desg VARCHAR(30),
+    bpay NUMERIC(10),
+    dno NUMERIC(10)
+);
+
+INSERT INTO sempls VALUES
+(1, 'bala', '15/1/84', 'm', '16thJuly', 'lec', 7000, 1),
+(2, 'kala', '13/9/84', 'm', '18thJuly', 'lec', 10000, 2),
+(3, 'mala', '17/6/85', 'f', '19thJune', 'lec', 19000, 1),
+(4, 'nila', '20/6/85', 'f', '19thJune', 'sr.lec', 20000, 1),
+(5, 'vina', '2/1/85', 'f', '12thJuly', 'prof.', 50000, 2);
+
+SELECT * FROM sempls;
+
+-- Step 2: Create sdments Table
+CREATE TABLE sdments (
+    dno INTEGER,
+    dname VARCHAR(30)
+);
+
+INSERT INTO sdments VALUES
+(1, 'cse'),
+(2, 'it');
+
+SELECT * FROM sdments;
+
+-- Step 3: Create spros Table
+CREATE TABLE spros (
+    pno INTEGER PRIMARY KEY,
+    pname VARCHAR(30),
+    dno INTEGER
+);
+
+INSERT INTO spros VALUES
+(81, 'aaa', 1),
+(82, 'bbb', 1),
+(83, 'ccc', 1),
+(84, 'ddd', 2),
+(85, 'eee', 2);
+
+SELECT * FROM spros;
+
+-- Step 4: Create sworks Table
+CREATE TABLE sworks (
+    eno INTEGER,
+    pno INTEGER,
+    datework VARCHAR(20),
+    intime INTEGER,
+    outtime INTEGER
+);
+
+INSERT INTO sworks VALUES
+(1, 81, '11thJuly', 9, 10),
+(1, 82, '11thJuly', 10, 11),
+(1, 83, '11thJuly', 11, 12),
+(1, 84, '11thJuly', 12, 1),
+(1, 85, '11thJuly', 1, 2),
+(2, 85, '12thJuly', 8, 9);
+
+SELECT * FROM sworks;
+
+-- Query 1: Employees with basic pay less than average
+SELECT * FROM sempls
+WHERE bpay < (
+    SELECT AVG(bpay)
+    FROM sempls
+);
+
+-- Query 2: Department number and employee count per department
+SELECT dno, COUNT(eno)
+FROM sempls
+GROUP BY dno;
+
+-- Query 3: Employees with basic pay between 10000 and 20000
+SELECT * FROM sempls
+WHERE bpay BETWEEN 10000 AND 20000;
+
+-- Query 4: Employees working in projects controlled by department 'cse'
+SELECT *
+FROM sempls, sdments, spros
+WHERE sdments.dno = spros.dno
+    AND sdments.dno = sempls.dno
+    AND dname = 'cse';
+
+-- Query 5: Employees who worked in more than 4 projects on a single day
+SELECT sempls.eno, ename, dno, datework
+FROM sempls, sworks
+WHERE sempls.eno IN (
+    SELECT eno
+    FROM (
+        SELECT eno, datework
+        FROM sworks
+        GROUP BY eno, datework
+        HAVING COUNT(pno) > 4
+    ) AS t
+)
+AND datework IN (
+    SELECT datework FROM (
+        SELECT eno, datework
+        FROM sworks
+        GROUP BY eno, datework
+        HAVING COUNT(pno) > 4
+    ) AS t2
+);
+
+
+
+
+-- Step 1: Create Products Table
+CREATE TABLE Products (
+    product_id INT PRIMARY KEY,
+    product_name VARCHAR(50)
+);
+
+-- Step 2: Insert Records
+INSERT INTO Products (product_id, product_name)
+VALUES
+(1, 'Samsung Phone'),
+(2, 'Sony TV'),
+(3, 'Apple Watch'),
+(4, 'Cat Toy'),
+(5, 'Cute Doll'),
+(6, 'Ace Game'),
+(7, 'Laptop123'),
+(8, '99_Battery');
+
+SELECT * FROM Products;
+
+-- ===== LIKE Operator =====
+
+-- Example 1: Names starting with S
+SELECT * FROM Products
+WHERE product_name LIKE 'S%';
+
+-- Example 2: Names containing 'Apple'
+SELECT * FROM Products
+WHERE product_name LIKE '%Apple%';
+
+-- Example 3: C, any one character, t, then anything
+SELECT * FROM Products
+WHERE product_name LIKE 'C_t%';
+
+-- Example 4: Starts with A, ends with e
+SELECT * FROM Products
+WHERE product_name LIKE 'A%e';
+
+-- ===== REGEXP Operator =====
+
+-- Example 1: Contains a digit
+SELECT * FROM Products
+WHERE product_name REGEXP '[0-9]';
+
+-- Example 2: Contains a lowercase letter
+SELECT * FROM Products
+WHERE product_name REGEXP '[a-z]';
+
+-- Example 3: Contains one or more 'o'
+SELECT * FROM Products
+WHERE product_name REGEXP 'o+';
+
+-- Example 4: Starts with S
+SELECT * FROM Products
+WHERE product_name REGEXP '^S';
+
+-- Example 5: Ends with e
+SELECT * FROM Products
+WHERE product_name REGEXP 'e$';
+
+
+
+
+
+-- Step 1: Create Students Table
+CREATE TABLE Students (
+    student_id INT PRIMARY KEY,
+    student_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    age INT CHECK (age >= 18),
+    course VARCHAR(50) DEFAULT 'B.Tech'
+);
+
+-- Step 2: Insert Records
+INSERT INTO Students
+(student_id, student_name, email, age, course)
+VALUES
+(1, 'Arun', 'arun@gmail.com', 20, 'B.Tech'),
+(2, 'Priya', 'priya@gmail.com', 21, DEFAULT),
+(3, 'Karthik', 'karthik@gmail.com', 19, 'B.Sc');
+
+SELECT * FROM Students;
+
+-- Step 3: Create Departments Table
+CREATE TABLE Departments (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50) NOT NULL
+);
+
+INSERT INTO Departments VALUES
+(101, 'Computer Science'),
+(102, 'Electronics'),
+(103, 'Mechanical'),
+(104, 'Civil');
+
+SELECT * FROM Departments;
+
+-- Step 4: Create Faculty Table (with FOREIGN KEY)
+CREATE TABLE Faculty (
+    faculty_id INT PRIMARY KEY,
+    faculty_name VARCHAR(50) NOT NULL,
+    dept_id INT,
+    FOREIGN KEY (dept_id)
+    REFERENCES Departments(dept_id)
+);
+
+INSERT INTO Faculty VALUES
+(1, 'Dr. Ramesh', 101),
+(2, 'Dr. Priya', 102),
+(3, 'Dr. Karthik', 101),
+(4, 'Dr. Anitha', 104);
+
+SELECT * FROM Faculty;
+
+-- Step 5: Valid Insert (dept_id 101 exists)
+INSERT INTO Faculty
+VALUES (5, 'Dr. Kumar', 101);
+
+-- Step 6: Invalid Insert (dept_id 999 does not exist — this will throw an error)
+INSERT INTO Faculty
+VALUES (6, 'Dr. Meena', 999);
