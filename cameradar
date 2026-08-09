@@ -1,11 +1,5 @@
 sudo apt install docker.io
 sudo systemctl start docker 
-sudo git clone https://GitHub.com/ullaakut/cameradar
-sudo apt install seclists
-ls -l
-cd /usr/share/wordlists
-cd /use/share/seclists
-ls -l
-cd passwords
-ls -l
-sudo docker run ullaakut/cameradar -t ipaddress -p 8554
+
+
+sudo docker run -t /home/filename -t <ipaddress>
