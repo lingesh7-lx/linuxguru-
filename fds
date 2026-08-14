@@ -1,0 +1,44 @@
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+df = pd.read_csv("iris.csv")
+print(df.info())
+
+# Comparing Species
+sns.countplot(x='Species', data=df)
+plt.show()
+
+# Comparing Sepal Length and Sepal Width
+sns.scatterplot(x='SepalLengthCm', y='SepalWidthCm', hue='Species', data=df)
+plt.show()
+
+# Comparing Petal Length and Petal Width
+sns.scatterplot(x='PetalLengthCm', y='PetalWidthCm', hue='Species', data=df)
+plt.show()
+
+# Handling Correlation
+print(df.corr(method='pearson'))
+
+# Removing Outliers
+# IQR
+Q1 = np.percentile(df['SepalWidthCm'], 25, method='midpoint')
+Q3 = np.percentile(df['SepalWidthCm'], 75, method='midpoint')
+IQR = Q3 - Q1
+
+print("Old Shape: ", df.shape)
+
+# Upper bound
+upper = np.where(df['SepalWidthCm'] >= (Q3 + 1.5 * IQR))
+# Lower bound
+lower = np.where(df['SepalWidthCm'] <= (Q1 - 1.5 * IQR))
+
+# Removing the Outliers
+df.drop(upper[0], inplace=True)
+df.drop(lower[0], inplace=True)
+
+print("New Shape: ", df.shape)
+
+sns.boxplot(x='SepalWidthCm', data=df)
+plt.show()
